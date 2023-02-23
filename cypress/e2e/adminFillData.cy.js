@@ -1,8 +1,12 @@
 /// <reference types="cypress" />
 
 const LoginPage = require('../support/PageOject/LoginPage')
+const HomePage = require('../support/PageOject/HomePage');
+const ManageProductPage = require('../support/PageOject/ManageProductPage');
 
 const loginPage = new LoginPage()
+const homePage = new HomePage()
+const manageProductPage = new ManageProductPage()
 
 describe('To add category, head category, sub category, image, and product', () => {
   it('should convert Excel file to .json file', () => {
@@ -44,8 +48,21 @@ describe("Reading Data from newly created json file",function()
         loginPage.getPasswordField().should('exist').type(Cypress.env('password'))
         loginPage.getBtn().should('exist').should('contain', 'Login').click()
         loginPage.getToastMessage().should('exist').should('have.text','Admin successfully logged in.')
-        // homePage.getHotelModule().should('exist').and('have.text', 'Hotel').click()
-        // cy.url().should('contain', '/hotel')
+        
+        homePage.getListContainer().find('div.mt-8').each(($el, index, $list) => {
+
+          const text = $el.text()
+          if(text.includes('Manage Product')){
+            cy.wrap($el).click()
+          }
+
+        })
+
+        manageProductPage.getTitle().should('exist').contains('Manage Product')
+        manageProductPage.getSemiTitle().should('exist').contains('Manage the product for sell.')
+        
+
+
 
         // cy.fixture('xlsxDataaa').then((user) =>
         // {
