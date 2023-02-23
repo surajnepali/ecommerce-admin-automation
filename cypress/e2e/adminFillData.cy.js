@@ -31,7 +31,7 @@ describe('To add category, head category, sub category, image, and product', () 
 
 describe("Reading Data from newly created json file",function()
 {
-    it("Test case to add four Homestays through MeroHomeStay Admin Side", function()
+    it("Automation to add products in Ecommerce Admin Site", function()
     {
         cy.viewport(1920, 1080)
         cy.visit(Cypress.env('url'))
