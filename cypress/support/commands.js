@@ -7,6 +7,19 @@
 // commands please read more here:
 // https://on.cypress.io/custom-commands
 // ***********************************************
+
+const resizeObserverLoopErrRe = /^[^(ResizeObserver loop limit exceeded)]/
+Cypress.on('uncaught:exception', (err) => {
+    /* returning false here prevents Cypress from failing the test */
+    if (resizeObserverLoopErrRe.test(err.message)) {
+        return false
+    }
+})
+
+Cypress.Commands.add("parseXlsx", (inputFile) => {
+    return cy.task('parseXlsx', { filePath: inputFile })
+    });
+
 //
 //
 // -- This is a parent command --
