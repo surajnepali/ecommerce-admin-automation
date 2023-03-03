@@ -14,7 +14,7 @@ class ManageProductPage {
     }
 
     getAddProductBtn() {
-        return cy.get(this.createProductBtn)
+        return cy.get(this.addProductBtn)
     }
 
 }
