@@ -16,9 +16,9 @@ const productImagePage = new ProductImagePage()
 const productDescriptionPage = new ProductDescriptionPage()
 const productPricingPage = new ProductPricingPage()
 
-describe('To add category, head category, sub category, image, and product', () => {
-  it('should convert Excel file to .json file', () => {
-    cy.parseXlsx('cypress/fixtures/excelData.xlsx').then((x) => {
+describe('Convert excel file to jspn file', () => {
+  it('read data from Excel', () => {
+    cy.parseXlsx('cypress/fixtures/excelDataEcommerce.xlsx').then((x) => {
       let allArray = x[0].data;
       console.log(allArray, "Array");
       let colNameArray = x[0].data[0];
@@ -72,57 +72,65 @@ describe("Reading Data from newly created json file",function()
         cy.fixture('xlsxData').then((user) =>
         {
 
-            for(let j = 0; j < 1; j++){ // for(let j = 0; j < user.Ecommerce.length; j++)
+            for(let j = 0; j < user.Ecommerce.length; j++){
               manageProductPage.getAddProductBtn().should('exist').click()
 
               // Create Product with name, category, head category, sub category, brand, size
-              createProductPage.getProductName().should('exist').type("productName")
+              createProductPage.getProductName().should('exist').type(user.Ecommerce[j].productName)
               createProductPage.getProductCategory().should('exist').each(($el, index, $list) => {
                 const text = $el.text()
                 if(text.includes('Select a Category')){
-                  cy.wrap($el).select('men')
+                  cy.wrap($el).select(user.Ecommerce[j].category)
                   cy.wait(1000)
                 }
                 
                 if(text.includes('Select a Head Category')){
-                  cy.wrap($el).select('jackets')
+                  cy.wrap($el).select(user.Ecommerce[j].headCategory)
                   cy.wait(1000)
                 }
                 
                 if(text.includes('Select a Sub Category')){
-                  cy.wrap($el).select('Winter Jacket')
+                  cy.wrap($el).select(user.Ecommerce[j].subCategory)
                   cy.wait(1000)
                 }
 
                 if(text.includes('Select a Product Brand')){
-                  cy.wrap($el).select('Calvin Klein')
+                  cy.wrap($el).select(user.Ecommerce[j].productBrand)
                 }
                 if(text.includes('Select a size')){
-                  cy.wrap($el).select('LARGE')
+                  cy.wrap($el).select(user.Ecommerce[j].sizeType)
                 }
               })
               createProductPage.getNextImage().should('exist').click()
               createProductPage.getToastMessage().should('exist').should('have.text','success')
 
-              // Upload cover image and other images of the product 
-              productImagePage.getUploadCoverBtn().should('exist').click().then(() => {
-                productImagePage.getUploadPopUp().should('exist')
-                productImagePage.getUpload().should('not.be.visible').selectFile('cover1.jpg', {force: true})
-                productImagePage.getSubmitBtn().eq(1).should('exist').and('have.text', 'Upload Image').click()
-                cy.wait(1500)
-              })
-              productImagePage.getUploadImageBtn().should('exist').click().then(() => {
-                productImagePage.getUploadPopUp().should('exist')
-                productImagePage.getUpload().selectFile('image1.jpg', {force: true})
-                productImagePage.getSubmitBtn().eq(1).should('exist').and('have.text', 'Upload Image').click()
-                cy.wait(1500)
-              })
+              // Upload cover image and other images of the product
+
+              const image = user.Ecommerce[j].images
+              const imageArray = image.split(', ')
+              for(let k = 0; k < imageArray.length; k++){
+                if(k == 0){
+                  productImagePage.getUploadCoverBtn().should('exist').click().then(() => {
+                    productImagePage.getUploadPopUp().should('exist')
+                    productImagePage.getUpload().selectFile('images/'+imageArray[k], {force: true})
+                    productImagePage.getSubmitBtn().eq(1).should('exist').and('have.text', 'Upload Image').click()
+                    cy.wait(1500)
+                  })
+                }else{
+                  productImagePage.getUploadImageBtn().should('exist').click().then(() => {
+                    productImagePage.getUploadPopUp().should('exist')
+                    productImagePage.getUpload().selectFile('images/'+imageArray[k], {force: true})
+                    productImagePage.getSubmitBtn().eq(1).should('exist').and('have.text', 'Upload Image').click()
+                    cy.wait(1500)
+                  })
+                }
+              }
               productImagePage.getSubmitBtn().eq(0).should('exist').and('have.text', 'Next:Product Description').click()
               productImagePage.getToastMessage().should('exist').should('have.text','Updated Product Image')
               
               // Add description of the product
               productDescriptionPage.getTitle().should('exist').and('have.text', 'Product Description')
-              productDescriptionPage.getDescriptionField().should('exist').type('productDescription')
+              productDescriptionPage.getDescriptionField().should('exist').type(user.Ecommerce[j].productDescription)
               productDescriptionPage.getSubmitBtn().should('exist').and('have.text', 'Next: Product Variant and Stock').click()
               productDescriptionPage.getToastMessage().should('exist').should('have.text','Edited Product')
 
@@ -131,18 +139,18 @@ describe("Reading Data from newly created json file",function()
               productPricingPage.getSelectDropdown().should('exist').each(($el, index, $list) => {
                 const text = $el.text()
                 if(text.includes('Select a color')){
-                  cy.wrap($el).select('red')
+                  cy.wrap($el).select(user.Ecommerce[j].selectColor)
+                  cy.wait(1000)
                 }
                 if(text.includes('Select a size')){
-                  cy.wrap($el).select('31')
+                  cy.wrap($el).select(user.Ecommerce[j].selectSize).should('have.value', user.Ecommerce[j].selectSize)
                 }
               })
-              productPricingPage.getPriceField().should('exist').type('1500')
-              productPricingPage.getAfterDiscountField().should('exist').type('1350')
-              productPricingPage.getQuantityField().should('exist').type('10')
-              productPricingPage.getSkuField().should('exist').type('sku121212')
+              productPricingPage.getPriceField().should('exist').type(user.Ecommerce[j].productPrice)
+              productPricingPage.getAfterDiscountField().should('exist').type(user.Ecommerce[j].priceAfterDiscount)
+              productPricingPage.getQuantityField().should('exist').type(user.Ecommerce[j].productQuantity)
+              productPricingPage.getSkuField().should('exist').type(user.Ecommerce[j].productSKU)
               productPricingPage.getSubmitBtn().should('exist').and('have.text', 'Save').click()
-              cy.pause()
             }
         })
 

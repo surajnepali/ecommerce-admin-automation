@@ -1,2 +1,6 @@
 node_modules
 cypress.env.json
+fixtures/excelData.xlsx
+fixtures/excelDataEcommerce.xlsx
+fixtures/xlsxData.json
+images
